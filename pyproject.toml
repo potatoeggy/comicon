@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "comicon"
+version = "0.1.0"
+description = "A simple comic conversion library between CBZ/EPUB/PDF"
+authors = ["Daniel Chen <danielchen04@hotmail.ca>"]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/potatoeggy/comicon"
+documentation = "https://github.com/potatoeggy/comicon"
+keywords = ["converter", "comic", "cbz", "epub", "pdf"]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

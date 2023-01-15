@@ -1,0 +1,83 @@
+from pathlib import Path
+
+from ebooklib import epub
+
+from .. import cirtools
+
+STYLE_CSS = """
+@page {
+    margin: 0
+}
+
+body {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+""".strip()
+
+EXTENSION_MIME_MAP = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+}
+
+
+def create_comic(cir_path: Path, dest: Path) -> None:
+    comic = cirtools.read_metadata(cir_path)
+
+    book = epub.EpubBook()
+    book.set_language("en")
+    book.set_title(comic.metadata.title)
+    book.add_metadata("DC", "description", comic.metadata.description)
+
+    for genre in comic.metadata.genres:
+        book.add_metadata("DC", "subject", genre)
+
+    if comic.metadata.cover_path_rel:
+        cover_path = cir_path / comic.metadata.cover_path_rel
+        cover_content = cover_path.read_bytes()
+        cover_ext = cover_path.suffix.lower().strip(".")
+        book.set_cover(f"cover.{cover_ext}", cover_content)
+
+    for author in comic.metadata.authors:
+        book.add_author(author)
+
+    for chapter in comic.chapters:
+        chap_html = epub.EpubHtml(
+            title=chapter.title,
+            file_name=f"{chapter.slug}.xhtml",
+        )
+
+        chapter_path = cir_path / chapter.slug
+        images = sorted(f for f in chapter_path.iterdir() if f.is_file())
+        for i, image in enumerate(images):
+            image_content = image.read_bytes()
+            img = epub.EpubImage(  # pylint: disable=unexpected-keyword-arg
+                uid="123",
+                file_name=f"img/{image.name}",
+                media_type=EXTENSION_MIME_MAP[image.suffix.lower()],
+                content=image_content,
+            )
+
+            page = epub.EpubHtml(
+                title=chapter, file_name=f"pages/{chapter.slug}-{i}.xhtml"
+            )
+
+            book.add_item(img)
+            book.add_item(page)
+
+        book.toc = (epub.Link(chap_html.file_name, chap_html.title),)
+
+    book.add_item(epub.EpubNcx())
+    book.add_item(epub.EpubNav())
+    nav_css = epub.EpubItem(
+        uid="style_nav",
+        file_name="style/nav.css",
+        media_type="text/css",
+        content=STYLE_CSS,
+    )
+    book.add_item(nav_css)
+
+    epub.write_epub(dest, book, {})

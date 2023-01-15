@@ -13,6 +13,7 @@ class BaseMetadata:
     authors: list[str] = field(default_factory=list)
     description: str | None = None
     genres: list[str] = field(default_factory=list)
+    cover_path_rel: str | None = None
     extra_metadata: dict[str, str] = field(default_factory=dict)
 
 

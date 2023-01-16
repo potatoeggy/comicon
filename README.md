@@ -9,3 +9,4 @@ TODO: support CBR
 | CBZ | :heavy_check_mark: | :heavy_check_mark: |
 | EPUB | :x: | :heavy_check_mark: |
 | PDF | :x: | :heavy_check_mark: |
+| CBR | :x: | :x: |

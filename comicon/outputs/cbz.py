@@ -9,10 +9,8 @@ from .. import cirtools
 
 def create_comic(cir_path: Path, dest: Path) -> None:
     """
-    Create a comic from the given IR path.
-
-    :param `cir_path`: The path to the IR folder.
-    :param `dest`: The path to the destination file.
+    Create a comic from the given IR path. Metadata is stored in ComicInfo.xml
+    and `comicon.json`.
     """
     comic = cirtools.read_metadata(cir_path)
 
@@ -50,4 +48,4 @@ def create_comic(cir_path: Path, dest: Path) -> None:
                 zipfile.ZIP_DEFLATED,
             )
         file.writestr("ComicInfo.xml", text_xml)
-        file.writestr("data.json", comic.to_json())
+        file.writestr(cirtools.IR_DATA_FILE, comic.to_json())

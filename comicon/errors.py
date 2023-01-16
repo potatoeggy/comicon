@@ -23,4 +23,4 @@ class BadImageError(InvalidCirError):
 
 
 class UnusedChapterError(InvalidCirError):
-    """Error for chapters declared in data.json but not found in the CIR folder."""
+    """Error for chapters declared in comicon.json but not found in the CIR folder."""

@@ -99,7 +99,7 @@ def create_comic(cir_path: Path, dest: Path) -> None:
 
     data_json = epub.EpubItem(
         uid="static/data_json",
-        file_name="data.json",
+        file_name=cirtools.IR_DATA_FILE,
         media_type="application/json",
         content=comic.to_json(),
     )

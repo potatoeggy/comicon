@@ -3,14 +3,14 @@ Tools for working with the Comicon Intermediate Representation (CIR).
 
 The CIR is a folder that must contain the following:
 
-- `data.json`: a JSON file containing the metadata for the comic (see `base.py`)
+- `comicon.json`: a JSON file containing the metadata for the comic (see `base.py`)
 - `{chapter-slug}/`: folders where `chapter-slug` is the slugified chapter name as
-defined in `data.json`
+defined in `comicon.json`
     - `{number}.{ext}`: ordered image files representing one comic page (min. 1)
 - `cover.{ext}`: a file containing the cover of the comic. Extensions allowed include
 jpg, jpeg, png, and gif.
 
-All folders as well as the cover image must be declared in `data.json`. Only image
+All folders as well as the cover image must be declared in `comicon.json`. Only image
 files are allowed in the chapter folders, but any file is allowed in the root of
 the CIR folder.
 """
@@ -26,7 +26,7 @@ from .errors import (
     UnusedChapterError,
 )
 
-IR_DATA_FILE = "data.json"
+IR_DATA_FILE = "comicon.json"
 ALLOWED_COVER_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif"]
 
 
@@ -54,12 +54,12 @@ def validate_cir(path: Path | str) -> None:
     if not path.is_dir():
         raise NotADirectoryError(f"{path} is not a directory")
 
-    # check that data.json exists
+    # check that comicon.json exists
     data_file = path / IR_DATA_FILE
     if not data_file.is_file():
         raise FileNotFoundError(f"{data_file} does not exist")
 
-    # check that data.json follows base.BaseComic
+    # check that comicon.json follows base.BaseComic
     with open(data_file, "r", encoding="utf-8") as file:
         data = json.load(file)
         comic = BaseComic(
@@ -72,7 +72,7 @@ def validate_cir(path: Path | str) -> None:
     if not chapter_folders:
         raise NoChaptersError("No chapter folders found")
 
-    # check that all chapter folders are declared in data.json
+    # check that all chapter folders are declared in comicon.json
     chapter_slugs = {c.slug for c in comic.chapters}
     for chapter_folder in chapter_folders:
         if chapter_folder.name not in chapter_slugs:

@@ -3,6 +3,7 @@ from pathlib import Path
 from ebooklib import epub
 
 from .. import cirtools
+from ..base import BaseChapter
 
 STYLE_CSS = """
 @page {
@@ -15,6 +16,17 @@ body {
     padding: 0;
 }
 """.strip()
+
+PAGE_CONTENT_TEMPLATE = """<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="static/style.css"/>
+  </head>
+
+  <body>
+    <img src="../{}"/>
+  </body>
+</html>
+"""
 
 EXTENSION_MIME_MAP = {
     ".jpg": "image/jpeg",
@@ -44,40 +56,47 @@ def create_comic(cir_path: Path, dest: Path) -> None:
     for author in comic.metadata.authors:
         book.add_author(author)
 
-    for chapter in comic.chapters:
-        chap_html = epub.EpubHtml(
-            title=chapter.title,
-            file_name=f"{chapter.slug}.xhtml",
-        )
+    chapter_htmls: list[tuple[BaseChapter, list[epub.EpubHtml]]] = []
 
+    for j, chapter in enumerate(comic.chapters):
+        chapter_htmls.append((chapter, []))
         chapter_path = cir_path / chapter.slug
         images = sorted(f for f in chapter_path.iterdir() if f.is_file())
         for i, image in enumerate(images):
             image_content = image.read_bytes()
             img = epub.EpubImage(  # pylint: disable=unexpected-keyword-arg
-                uid="123",
-                file_name=f"img/{image.name}",
+                uid=f"{chapter.slug}-{image.name}",
+                file_name=f"img/{chapter.slug}/{image.name}",
                 media_type=EXTENSION_MIME_MAP[image.suffix.lower()],
                 content=image_content,
             )
 
             page = epub.EpubHtml(
-                title=chapter, file_name=f"pages/{chapter.slug}-{i}.xhtml"
+                uid=f"chap{j}-{i}",
+                title=chapter.title,
+                file_name=f"pages/{chapter.slug}-{i}.xhtml",
+                content=PAGE_CONTENT_TEMPLATE.format(img.file_name),
             )
 
             book.add_item(img)
             book.add_item(page)
+            chapter_htmls[-1][1].append(page)  # push to the latest chapter
 
-        book.toc = (epub.Link(chap_html.file_name, chap_html.title),)
+    book.toc = tuple(
+        epub.Link(pages[0].file_name, chapter.title, chapter.slug)
+        for chapter, pages in chapter_htmls
+    )
 
     book.add_item(epub.EpubNcx())
     book.add_item(epub.EpubNav())
     nav_css = epub.EpubItem(
         uid="style_nav",
-        file_name="style/nav.css",
+        file_name="static/style.css",
         media_type="text/css",
         content=STYLE_CSS,
     )
     book.add_item(nav_css)
+
+    book.spine = [*sum((pages for _, pages in chapter_htmls), [])]
 
     epub.write_epub(dest, book, {})

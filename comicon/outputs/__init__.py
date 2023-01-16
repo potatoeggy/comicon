@@ -24,4 +24,10 @@ def create_comic(ir_path: Path | str, dest: Path | str, ext: SupportedOutputs) -
     """
     ir_path = Path(ir_path)
     dest = Path(dest)
+
+    if dest.is_dir():
+        raise IsADirectoryError(
+            f"{dest} is a directory. Make sure you pass the file"
+            "path to the new comic file."
+        )
     return OUTPUT_FN_MAP[ext](ir_path, dest)

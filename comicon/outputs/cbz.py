@@ -50,3 +50,4 @@ def create_comic(cir_path: Path, dest: Path) -> None:
                 zipfile.ZIP_DEFLATED,
             )
         file.writestr("ComicInfo.xml", text_xml)
+        file.writestr("data.json", comic.to_json())

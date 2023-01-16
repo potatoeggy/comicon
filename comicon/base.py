@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+import json
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass
@@ -21,3 +22,6 @@ class BaseMetadata:
 class BaseComic:
     metadata: BaseMetadata
     chapters: list[BaseChapter]
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), indent=2)

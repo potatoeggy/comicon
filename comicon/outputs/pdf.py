@@ -41,9 +41,9 @@ def create_comic(cir_path: Path, dest: Path) -> None:
             title=comic.metadata.title,
             author=author,
             append=i != 0,
-            creator="comicon",
+            creator=comic.to_json(),
             producer="comicon",
-            keywords="; ".join(comic.metadata.genres),
+            keywords=", ".join(comic.metadata.genres),
             subject=comic.metadata.description,
         )
 

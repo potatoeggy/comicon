@@ -97,6 +97,14 @@ def create_comic(cir_path: Path, dest: Path) -> None:
     )
     book.add_item(nav_css)
 
+    data_json = epub.EpubItem(
+        uid="static/data_json",
+        file_name="data.json",
+        media_type="application/json",
+        content=comic.to_json(),
+    )
+    book.add_item(data_json)
+
     book.spine = [*sum((pages for _, pages in chapter_htmls), [])]
 
     epub.write_epub(dest, book, {})

@@ -31,7 +31,7 @@ class BaseComic:
         return asdict(self)
 
     @classmethod
-    def from_json(cls, json_str: str) -> "BaseComic":
+    def from_json(cls, json_str: str | bytes) -> "BaseComic":
         data: dict = json.loads(json_str)
         return cls(
             BaseMetadata(**data["metadata"]),

@@ -44,7 +44,7 @@ def create_comic(cir_path: Path, dest: Path) -> None:
             file.write(
                 cover_path,
                 # rename cover to appear first in the archive
-                cover_path.with_stem("__cover").absolute().relative_to(cir_path),
+                cover_path.with_stem("--cover").absolute().relative_to(cir_path),
                 zipfile.ZIP_DEFLATED,
             )
         file.writestr("ComicInfo.xml", text_xml)

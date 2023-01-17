@@ -155,4 +155,4 @@ class ChapterPageMetadata:
     href: str
 
     def __post_init__(self) -> None:
-        self.href = Path(self.href).resolve()
+        self.href = str(Path(self.href).resolve())

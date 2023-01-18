@@ -2,7 +2,7 @@
 import json
 import zipfile
 from pathlib import Path
-from typing import TypedDict
+from typing import Iterator, TypedDict
 
 from lxml import etree
 
@@ -21,7 +21,7 @@ class MetadataDict(TypedDict):
     extra_metadata: dict[str, str]
 
 
-def create_cir(path: Path, dest: Path) -> None:
+def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
     """
     Convert a comic to the CIR format. Not all metadata can be converted,
     unless the comic was created by comicon.
@@ -93,6 +93,8 @@ def create_cir(path: Path, dest: Path) -> None:
             with open(dest / comic.metadata.cover_path_rel, "wb") as file:
                 file.write(data)
 
+        yield len(image_paths)
+
         if found_comicon_metadata:
             # directly copy all images to respective destination folders in CIR
             for image_path in image_paths:
@@ -106,6 +108,7 @@ def create_cir(path: Path, dest: Path) -> None:
                 new_path.mkdir(parents=True, exist_ok=True)
                 with open(new_path / filename, "wb") as file:
                     file.write(data)
+                    yield str(filename)
         else:
             # copy all image folders into a single folder
             # TODO: remove hardcoded "chapter-1" and make it variable
@@ -117,3 +120,4 @@ def create_cir(path: Path, dest: Path) -> None:
                 new_path = dest / "chapter-1" / image_path.name
                 with open(new_path, "wb") as file:
                     file.write(data)
+                    yield str(filename)

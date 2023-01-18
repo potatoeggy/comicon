@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import cast
+from typing import Iterator, cast
 
 from ebooklib import epub
 
@@ -10,7 +10,7 @@ from ..base import BaseChapter, BaseComic, BaseMetadata
 XML_NAMESPACE = "http://purl.org/dc/elements/1.1/"
 
 
-def create_cir(path: Path, dest: Path) -> None:
+def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
     book = epub.read_epub(path)
     found_comicon_metadata = False
     out: list[epub.EpubItem] = list(book.get_items())
@@ -29,10 +29,13 @@ def create_cir(path: Path, dest: Path) -> None:
         return create_cir_from_other(dest, book)
 
 
-def create_cir_from_comicon(dest: Path, book: epub.EpubBook, comic: BaseComic) -> None:
+def create_cir_from_comicon(
+    dest: Path, book: epub.EpubBook, comic: BaseComic
+) -> Iterator[str | int]:
     # we can make a *lot* of assumptions
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
 
+    yield len(book.get_items())
     for item in book.get_items():
         item = cast(epub.EpubItem, item)
         match item.file_name.split("/"):
@@ -41,6 +44,7 @@ def create_cir_from_comicon(dest: Path, book: epub.EpubBook, comic: BaseComic) -
                 # but it might be good to check it anyway
                 dest_path = dest / slug / image_name
                 dest_path.parent.mkdir(parents=True, exist_ok=True)
+                yield str(dest_path)
 
                 dest_path.write_bytes(item.get_content())
             case [comic.metadata.cover_path_rel] if comic.metadata.cover_path_rel:
@@ -52,7 +56,7 @@ def create_cir_from_comicon(dest: Path, book: epub.EpubBook, comic: BaseComic) -
                 pass
 
 
-def create_cir_from_other(dest: Path, book: epub.EpubBook) -> None:
+def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int]:
     # look at TOC, take title and slug from each
     # look at spine, be like noveldown
     metadata = book.metadata[XML_NAMESPACE]
@@ -89,6 +93,7 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> None:
     ]
     item = 0  # represents next chapter
 
+    yield len(book.spine)  # num pages to copy
     for page, _ in book.spine:
         page: epub.EpubItem = book.get_item_with_id(page)
 
@@ -147,6 +152,7 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> None:
                 ext = Path(img_item.file_name).suffix
                 page_path = chapter_dir / f"{i:05}{ext}"
                 page_path.write_bytes(img_item.get_content())
+                yield str(page_path)
 
 
 @dataclass

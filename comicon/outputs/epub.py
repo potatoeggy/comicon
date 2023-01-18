@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterator
 
 from ebooklib import epub
 
@@ -36,7 +37,7 @@ EXTENSION_MIME_MAP = {
 }
 
 
-def create_comic(cir_path: Path, dest: Path) -> None:
+def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
     comic = cirtools.read_metadata(cir_path)
 
     book = epub.EpubBook()
@@ -58,6 +59,7 @@ def create_comic(cir_path: Path, dest: Path) -> None:
 
     chapter_htmls: list[tuple[BaseChapter, list[epub.EpubHtml]]] = []
 
+    yield len(comic.chapters)
     for j, chapter in enumerate(comic.chapters):
         chapter_htmls.append((chapter, []))
         chapter_path = cir_path / chapter.slug
@@ -81,6 +83,7 @@ def create_comic(cir_path: Path, dest: Path) -> None:
             book.add_item(img)
             book.add_item(page)
             chapter_htmls[-1][1].append(page)  # push to the latest chapter
+        yield chapter.title
 
     book.toc = tuple(
         epub.Link(pages[0].file_name, chapter.title, chapter.slug)

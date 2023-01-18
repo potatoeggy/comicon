@@ -35,7 +35,9 @@ def create_comic(cir_path: Path, dest: Path) -> None:
         )
     )
 
+    yield len(images) // interval
     for i in range(0, len(images), interval):
+        yield str(i // len(images))
         append_images = images[i + 1 : i + interval] if len(images) > i + 1 else []
         author = ", ".join(comic.metadata.authors)
 

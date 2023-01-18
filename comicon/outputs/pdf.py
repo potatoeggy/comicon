@@ -16,8 +16,15 @@ def create_comic(cir_path: Path, dest: Path) -> None:
     if comic.metadata.cover_path_rel:
         images.append(Image.open(cir_path / comic.metadata.cover_path_rel))
 
+    images_per_chapter: list[int] = []
     for chap in comic.chapters:
-        images.extend(Image.open(f) for f in sorted((cir_path / chap.slug).iterdir()))
+        chap_images = [Image.open(f) for f in sorted((cir_path / chap.slug).iterdir())]
+        images_per_chapter.append(len(chap_images))
+        images.extend(chap_images)
+
+    # track the number of images per chapter
+    # for reconstruction if needed
+    comic.metadata.extra_metadata["pdf_pages"] = images_per_chapter
 
     # interval for num pdf images to process
     # at one time

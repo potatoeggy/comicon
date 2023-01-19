@@ -1,12 +1,24 @@
 # Comicon
 
-Lightweight comic converter library between CBZ, PDF, and EPUB.
+Comicon is a lightweight comic converter library between CBZ, PDF, and EPUB.
+
+## Usage
 
 ```python
 import comicon
 
-comicon.
+comicon.convert("comic.cbz", "comic.epub")
 ```
+
+## Installation
+
+Comicon is available from PyPI:
+
+```
+pip install comicon
+```
+
+## Supported conversions
 
 | Format | Convert from? | Convert to? |
 | --- | --- | --- |

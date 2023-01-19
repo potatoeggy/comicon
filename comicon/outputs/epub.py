@@ -4,7 +4,7 @@ from typing import Iterator
 from ebooklib import epub
 
 from .. import cirtools
-from ..base import BaseChapter
+from ..base import Chapter
 
 STYLE_CSS = """
 @page {
@@ -57,7 +57,7 @@ def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
     for author in comic.metadata.authors:
         book.add_author(author)
 
-    chapter_htmls: list[tuple[BaseChapter, list[epub.EpubHtml]]] = []
+    chapter_htmls: list[tuple[Chapter, list[epub.EpubHtml]]] = []
 
     yield len(comic.chapters)
     for j, chapter in enumerate(comic.chapters):

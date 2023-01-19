@@ -5,7 +5,7 @@ from typing import Iterator, cast
 from ebooklib import epub
 
 from .. import cirtools
-from ..base import BaseChapter, BaseComic, BaseMetadata
+from ..base import Chapter, Comic, Metadata
 
 XML_NAMESPACE = "http://purl.org/dc/elements/1.1/"
 
@@ -18,7 +18,7 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
     for item in out:
         match item.file_name.split("/"):
             case ["static", cirtools.IR_DATA_FILE]:
-                comic = BaseComic.from_json(item.get_content())
+                comic = Comic.from_json(item.get_content())
                 found_comicon_metadata = True
             case _:
                 ...
@@ -30,7 +30,7 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
 
 
 def create_cir_from_comicon(
-    dest: Path, book: epub.EpubBook, comic: BaseComic
+    dest: Path, book: epub.EpubBook, comic: Comic
 ) -> Iterator[str | int]:
     # we can make a *lot* of assumptions
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
@@ -78,7 +78,7 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int
         # no cover image
         ...
 
-    comic_metadata = BaseMetadata(title, authors, description, genres, cover_item_rel)
+    comic_metadata = Metadata(title, authors, description, genres, cover_item_rel)
 
     # assume that there can be no duplicate IDs in
     # a properly formed EPUB
@@ -89,7 +89,7 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int
 
     # list of tuples of chapter and list of hrefs
     chapters: list[tuple[ChapterPageMetadata, list[epub.EpubItem]]] = [
-        (ChapterPageMetadata(BaseChapter(chap.title, chap.uid), chap.href), [])
+        (ChapterPageMetadata(Chapter(chap.title, chap.uid), chap.href), [])
         for chap in book.toc
     ]
     item = 0  # represents next chapter
@@ -113,7 +113,7 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int
             # this is a hack so we don't have to create a new chapter
             chapters[item - 1][1].append(page)
 
-    comic = BaseComic(comic_metadata, [chapter.base_chap for chapter, _ in chapters])
+    comic = Comic(comic_metadata, [chapter.base_chap for chapter, _ in chapters])
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
 
     for chapter, page_list in chapters:
@@ -160,7 +160,7 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int
 
 @dataclass
 class ChapterPageMetadata:
-    base_chap: BaseChapter
+    base_chap: Chapter
     href: str
 
     def __post_init__(self) -> None:

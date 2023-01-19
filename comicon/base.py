@@ -4,13 +4,13 @@ from typing import Any
 
 
 @dataclass
-class BaseChapter:
+class Chapter:
     title: str
     slug: str  # on the filesystem
 
 
 @dataclass
-class BaseMetadata:
+class Metadata:
     title: str
     authors: list[str] = field(default_factory=list)
     description: str | None = None
@@ -20,9 +20,9 @@ class BaseMetadata:
 
 
 @dataclass
-class BaseComic:
-    metadata: BaseMetadata
-    chapters: list[BaseChapter]
+class Comic:
+    metadata: Metadata
+    chapters: list[Chapter]
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2)
@@ -31,9 +31,9 @@ class BaseComic:
         return asdict(self)
 
     @classmethod
-    def from_json(cls, json_str: str | bytes) -> "BaseComic":
+    def from_json(cls, json_str: str | bytes) -> "Comic":
         data: dict = json.loads(json_str)
         return cls(
-            BaseMetadata(**data["metadata"]),
-            [BaseChapter(**c) for c in data["chapters"]],
+            Metadata(**data["metadata"]),
+            [Chapter(**c) for c in data["chapters"]],
         )

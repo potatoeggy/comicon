@@ -6,7 +6,7 @@ from typing import Iterator, TypedDict
 
 from lxml import etree
 
-from ..base import BaseChapter, BaseComic, BaseMetadata
+from ..base import Chapter, Comic, Metadata
 from ..cirtools import IR_DATA_FILE
 
 ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif"]
@@ -59,7 +59,7 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                 with z.open(name) as file:
                     data = file.read()
 
-                comic = BaseComic.from_json(data)
+                comic = Comic.from_json(data)
                 found_comicon_metadata = True
                 break
             elif "cover" in name and Path(name).suffix in ACCEPTED_IMAGE_EXTENSIONS:
@@ -78,9 +78,7 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                 # ignore all other file types
                 ...
         else:
-            comic = BaseComic(
-                BaseMetadata(**data_dict), [BaseChapter("Chapter 1", "chapter-1")]
-            )
+            comic = Comic(Metadata(**data_dict), [Chapter("Chapter 1", "chapter-1")])
 
         with open(dest / IR_DATA_FILE, "w", encoding="utf-8") as file:
             json.dump(comic.to_dict(), file, indent=2)

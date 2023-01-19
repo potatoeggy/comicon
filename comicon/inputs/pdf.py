@@ -5,7 +5,7 @@ from typing import Iterator
 from pypdf import PdfReader
 
 from .. import cirtools
-from ..base import BaseChapter, BaseComic, BaseMetadata
+from ..base import Chapter, Comic, Metadata
 
 
 def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
@@ -35,10 +35,10 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
         # to check via duck typings
 
         if reader.metadata.producer == "comicon":
-            comic = BaseComic.from_json(reader.metadata.creator)
+            comic = Comic.from_json(reader.metadata.creator)
         else:
-            metadata = BaseMetadata(title, authors, description, genres, "")
-            comic = BaseComic(metadata, [BaseChapter("Chapter 1", "chapter-1")])
+            metadata = Metadata(title, authors, description, genres, "")
+            comic = Comic(metadata, [Chapter("Chapter 1", "chapter-1")])
 
         # use first image as cover
     yield len(reader.pages)

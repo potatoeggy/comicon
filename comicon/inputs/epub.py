@@ -35,11 +35,10 @@ def create_cir_from_comicon(
     # we can make a *lot* of assumptions
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
 
-    yield len(book.get_items())
+    yield len(list(book.get_items()))
     print("OI WTF")
     for item in book.get_items():
         item = cast(epub.EpubItem, item)
-        print(item.file_name)
         match item.file_name.split("/"):
             case ["img", slug, image_name]:
                 # we can assume that the slug is the same as the chapter slug

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Iterator, Literal
+from typing import Callable, Iterator, Literal, get_args
 
 from .. import cirtools
 from . import cbz, cir, epub, pdf
@@ -16,14 +16,20 @@ OUTPUT_FN_MAP: dict[SupportedOutputs, OutputFn] = {
 
 
 def create_comic(
-    ir_path: Path | str, dest: Path | str, ext: SupportedOutputs, validate: bool = True
+    ir_path: Path | str,
+    dest: Path | str,
+    ext: SupportedOutputs | None = None,
+    validate: bool = True,
 ) -> None:
     for _ in create_comic_progress(ir_path, dest, ext, validate):
         ...
 
 
 def create_comic_progress(
-    ir_path: Path | str, dest: Path | str, ext: SupportedOutputs, validate: bool = True
+    ir_path: Path | str,
+    dest: Path | str,
+    ext: SupportedOutputs | None = None,
+    validate: bool = True,
 ) -> Iterator[str | int]:
     # TODO: make iterator for progress bar
     """
@@ -35,6 +41,12 @@ def create_comic_progress(
     ir_path = Path(ir_path)
     dest = Path(dest)
 
+    inferred_ext = dest.suffix.lower().split(".")[-1]
+    if not ext and inferred_ext not in get_args(SupportedOutputs):
+        raise ValueError(
+            f"Could not infer a supported output extension ({inferred_ext})"
+        )
+
     if validate:
         cirtools.validate_cir(ir_path)
 
@@ -43,4 +55,4 @@ def create_comic_progress(
             f"{dest} is a directory. Make sure you pass the file"
             "path to the new comic file."
         )
-    yield from OUTPUT_FN_MAP[ext](ir_path, dest)
+    yield from OUTPUT_FN_MAP[ext or inferred_ext](ir_path, dest)

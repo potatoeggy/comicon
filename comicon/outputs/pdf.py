@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterator
 
 from PIL import Image
 
@@ -8,7 +9,7 @@ PDF_IMAGE_MAX_INTERVAL = 200  # adjust for memory as necessary
 PDF_IMAGE_MIN_INTERVAL_FACTOR = 0.12
 
 
-def create_comic(cir_path: Path, dest: Path) -> None:
+def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
     comic = cirtools.read_metadata(cir_path)
 
     # TODO: consider using a generator instead of a list

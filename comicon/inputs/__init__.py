@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Iterator, Literal
+from typing import Callable, Iterator, Literal, cast, get_args
 
 from .. import cirtools
 from . import cbz, cir, epub, pdf
@@ -16,7 +16,10 @@ INPUT_FN_MAP: dict[SupportedInputs, InputFn] = {
 
 
 def create_cir(
-    path: Path | str, dest: Path | str, ext: SupportedInputs, validate: bool = True
+    path: Path | str,
+    dest: Path | str,
+    ext: SupportedInputs | None = None,
+    validate: bool = True,
 ) -> None:
     """
     Create a CIR from the given path.
@@ -26,7 +29,10 @@ def create_cir(
 
 
 def create_cir_progress(
-    path: Path | str, dest: Path | str, ext: SupportedInputs, validate: bool = True
+    path: Path | str,
+    dest: Path | str,
+    ext: SupportedInputs | None = None,
+    validate: bool = True,
 ) -> Iterator[str | int]:
     """
     The first thing returns the number of images (int)
@@ -34,9 +40,20 @@ def create_cir_progress(
     """
     path = Path(path)
     dest = Path(dest)
-    yield from INPUT_FN_MAP[ext](path, dest)
+
+    # try to guess ext
+    inferred_ext = path.suffix.lower().split(".")[-1]
+    if not ext and inferred_ext not in get_args(SupportedInputs):
+        raise ValueError(
+            f"Could not infer a supported input extension ({inferred_ext})"
+        )
+
+    inferred_ext = cast(SupportedInputs, inferred_ext)
 
     if len(list(dest.iterdir())) > 0:
         raise OSError(f"Cannot convert to non-empty folder {dest}.")
+
+    yield from INPUT_FN_MAP[ext or inferred_ext](path, dest)
+
     if validate:
         cirtools.validate_cir(dest)

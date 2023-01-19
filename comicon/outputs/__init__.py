@@ -7,6 +7,8 @@ from . import cbz, cir, epub, pdf
 SupportedOutputs = Literal["cbz", "epub", "pdf", "cir"]
 OutputFn = Callable[[Path, Path], Iterator[str | int]]
 
+SupportedOutputList: tuple[SupportedOutputs] = get_args(SupportedOutputs)  # type: ignore # noqa: B950
+
 OUTPUT_FN_MAP: dict[SupportedOutputs, OutputFn] = {
     "cbz": cbz.create_comic,
     "epub": epub.create_comic,

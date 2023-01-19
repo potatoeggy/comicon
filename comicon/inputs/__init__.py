@@ -7,6 +7,8 @@ from . import cbz, cir, epub, pdf
 SupportedInputs = Literal["cbz", "epub", "pdf", "cir"]
 InputFn = Callable[[Path, Path], Iterator[str | int]]
 
+SupportedInputList: tuple[SupportedInputs] = get_args(SupportedInputs)  # type: ignore
+
 INPUT_FN_MAP: dict[SupportedInputs, InputFn] = {
     "cbz": cbz.create_cir,
     "epub": epub.create_cir,

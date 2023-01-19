@@ -23,6 +23,7 @@ from .errors import (
     BadImageError,
     EmptyChapterError,
     NoChaptersError,
+    UndeclaredChapterError,
     UnusedChapterError,
 )
 
@@ -68,9 +69,17 @@ def validate_cir(path: Path | str) -> None:
 
     # check that all chapter folders are declared in comicon.json
     chapter_slugs = {c.slug for c in comic.chapters}
-    for chapter_folder in chapter_folders:
-        if chapter_folder.name not in chapter_slugs:
-            raise UnusedChapterError(f"{chapter_folder} not declared in {data_file}")
+    chapter_folder_set = {f.name for f in chapter_folders}
+    if diff := chapter_slugs - chapter_folder_set:
+        raise UnusedChapterError(
+            f"Chapters were declared in {data_file} but "
+            f"were not found in the filesystem: {diff}"
+        )
+
+    if diff := chapter_folder_set - chapter_slugs:
+        raise UndeclaredChapterError(
+            f"Found following chapters that were not declared in {data_file}: {diff}"
+        )
 
     # check that all chapter folders contain at least one image
     for chapter_folder in chapter_folders:

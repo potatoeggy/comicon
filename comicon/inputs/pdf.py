@@ -1,5 +1,4 @@
 import itertools
-import json
 from pathlib import Path
 from typing import Iterator
 
@@ -36,15 +35,7 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
         # to check via duck typings
 
         if reader.metadata.producer == "comicon":
-            comic = BaseComic(
-                # premature optimisation is the root of all evil :)
-                # i'll make it pretty later i promise
-                BaseMetadata(**json.loads(reader.metadata.creator)["metadata"]),
-                [
-                    BaseChapter(**c)
-                    for c in json.loads(reader.metadata.creator)["chapters"]
-                ],
-            )
+            comic = BaseComic.from_json(reader.metadata.creator)
         else:
             metadata = BaseMetadata(title, authors, description, genres, "")
             comic = BaseComic(metadata, [BaseChapter("Chapter 1", "chapter-1")])

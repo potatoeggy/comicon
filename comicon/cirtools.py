@@ -18,7 +18,7 @@ the CIR folder.
 import json
 from pathlib import Path
 
-from .base import BaseChapter, BaseComic, BaseMetadata
+from .base import BaseComic
 from .errors import (
     BadImageError,
     EmptyChapterError,
@@ -38,10 +38,7 @@ def read_metadata(path: Path | str) -> BaseComic:
     data_file = path / IR_DATA_FILE
     with open(data_file, "r", encoding="utf-8") as file:
         data = json.load(file)
-        return BaseComic(
-            BaseMetadata(**data["metadata"]),
-            [BaseChapter(**c) for c in data["chapters"]],
-        )
+        return BaseComic.from_json(data)
 
 
 def validate_cir(path: Path | str) -> None:
@@ -62,10 +59,7 @@ def validate_cir(path: Path | str) -> None:
     # check that comicon.json follows base.BaseComic
     with open(data_file, "r", encoding="utf-8") as file:
         data = json.load(file)
-        comic = BaseComic(
-            BaseMetadata(**data["metadata"]),
-            [BaseChapter(**c) for c in data["chapters"]],
-        )
+        comic = BaseComic.from_json(data)
 
     # check at at least one chapter exists
     chapter_folders = sorted(f for f in path.iterdir() if f.is_dir())

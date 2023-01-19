@@ -1,6 +1,6 @@
 import json
 from dataclasses import asdict, dataclass, field
-from typing import Any
+from typing import Any, cast
 
 
 @dataclass
@@ -31,9 +31,12 @@ class Comic:
         return asdict(self)
 
     @classmethod
-    def from_json(cls, json_str: str | bytes) -> "Comic":
-        data: dict = json.loads(json_str)
+    def from_json(cls, dict_str: str | bytes | dict) -> "Comic":
+        if not isinstance(dict_str, dict):
+            dict_str: dict = json.loads(dict_str)
+
+        dict_str = cast(dict, dict_str)
         return cls(
-            Metadata(**data["metadata"]),
-            [Chapter(**c) for c in data["chapters"]],
+            Metadata(**dict_str["metadata"]),
+            [Chapter(**c) for c in dict_str["chapters"]],
         )

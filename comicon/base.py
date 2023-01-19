@@ -16,7 +16,7 @@ class BaseMetadata:
     description: str | None = None
     genres: list[str] = field(default_factory=list)
     cover_path_rel: str | None = None
-    extra_metadata: dict[str, str] = field(default_factory=dict)
+    extra_metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

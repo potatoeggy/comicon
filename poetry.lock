@@ -279,6 +279,28 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "pypdf"
+version = "3.2.1"
+description = "A pure-python PDF library capable of splitting, merging, cropping, and transforming PDF files"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "pypdf-3.2.1-py3-none-any.whl", hash = "sha256:beb4022d95caec5f32acd935e4de05b0b36cc95a5d06477f84d6ec0b337288b0"},
+    {file = "pypdf-3.2.1.tar.gz", hash = "sha256:ac6bcd4492b55c95f58f7e3a6e8e113588244bdfb21c8ee60da6db399725b8dd"},
+]
+
+[package.dependencies]
+Pillow = {version = "*", optional = true, markers = "extra == \"image\""}
+
+[package.extras]
+crypto = ["PyCryptodome"]
+dev = ["black", "flit", "pip-tools", "pre-commit (<2.18.0)", "pytest-cov", "wheel"]
+docs = ["myst_parser", "sphinx", "sphinx_rtd_theme"]
+full = ["Pillow", "PyCryptodome"]
+image = ["Pillow"]
+
+[[package]]
 name = "pytest"
 version = "7.2.1"
 description = "pytest: simple powerful testing with Python"
@@ -329,4 +351,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10"
-content-hash = "e4ac9aa867a46da4b72bd66ecdc85ead8e96fd305563bfad28c08d6f5e461952"
+content-hash = "b11bb7165c6840c01839ee64cad304df70fd8da1fe08820a9b36f0ae76ff432e"

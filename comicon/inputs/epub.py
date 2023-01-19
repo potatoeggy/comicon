@@ -36,8 +36,10 @@ def create_cir_from_comicon(
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
 
     yield len(book.get_items())
+    print("OI WTF")
     for item in book.get_items():
         item = cast(epub.EpubItem, item)
+        print(item.file_name)
         match item.file_name.split("/"):
             case ["img", slug, image_name]:
                 # we can assume that the slug is the same as the chapter slug
@@ -96,11 +98,14 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int
     yield len(book.spine)  # num pages to copy
     for page, _ in book.spine:
         page: epub.EpubItem = book.get_item_with_id(page)
+        full_path = str(("/" / Path(page.file_name)).resolve()).removeprefix(
+            dest.anchor
+        )
 
         if len(chapters) == item:
             # add anything after the last chapter
             chapters[-1][1].append(page)
-        elif chapters[item][0].href == Path(page.file_name).resolve():
+        elif chapters[item][0].href.endswith(full_path):
             # next chapter
             item += 1
             chapters[item - 1][1].append(page)
@@ -115,7 +120,6 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int
     for chapter, page_list in chapters:
         chapter_dir = dest / chapter.base_chap.slug
         chapter_dir.mkdir(exist_ok=True)
-
         # copy meta
         for i, page in enumerate(page_list, start=1):
             # TODO: allow for more than one image per XHTML / HTML file

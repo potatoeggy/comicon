@@ -4,6 +4,8 @@ Comicon is a lightweight comic converter library between CBZ, PDF, and EPUB that
 
 ## Usage
 
+For a command line interface, please see [Mandown](https://github.com/potatoeggy/mandown).
+
 ```python
 import comicon
 

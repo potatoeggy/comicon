@@ -36,7 +36,6 @@ def create_cir_from_comicon(
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
 
     yield len(list(book.get_items()))
-    print("OI WTF")
     for item in book.get_items():
         item = cast(epub.EpubItem, item)
         match item.file_name.split("/"):

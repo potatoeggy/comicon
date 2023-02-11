@@ -12,21 +12,16 @@ XML_NAMESPACE = "http://purl.org/dc/elements/1.1/"
 
 def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
     book = epub.read_epub(path)
-    found_comicon_metadata = False
     out: list[epub.EpubItem] = list(book.get_items())
     comic = None
     for item in out:
         match item.file_name.split("/"):
             case ["static", cirtools.IR_DATA_FILE]:
                 comic = Comic.from_json(item.get_content())
-                found_comicon_metadata = True
+                return create_cir_from_comicon(dest, book, comic)
             case _:
                 ...
-
-    if found_comicon_metadata:
-        return create_cir_from_comicon(dest, book, comic)
-    else:
-        return create_cir_from_other(dest, book)
+    return create_cir_from_other(dest, book)
 
 
 def create_cir_from_comicon(

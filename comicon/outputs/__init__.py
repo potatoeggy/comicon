@@ -39,6 +39,9 @@ def create_comic_progress(
 
     :param `cir_path`: The path to the IR folder.
     :param `dest`: The path to the destination file.
+    :param `ext`: An optional file extension string denoting the
+    desired file extension.
+    :param `validate`: Whether to validate the CIR before creation.
     """
     ir_path = Path(ir_path)
     dest = Path(dest)

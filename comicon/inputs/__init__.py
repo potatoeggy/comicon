@@ -25,6 +25,12 @@ def create_cir(
 ) -> None:
     """
     Create a CIR from the given path.
+
+    :param `path`: The path to the comic file.
+    :param `dest`: The path to the destination folder.
+    :param `ext`: An optional file extension string denoting the
+    desired file extension.
+    :param `validate`: Whether to validate the CIR after creation.
     """
     for _ in create_cir_progress(path, dest, ext, validate):
         ...

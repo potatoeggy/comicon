@@ -87,7 +87,7 @@ def validate_cir(path: Path | str) -> None:
         if not images:
             raise EmptyChapterError(f"{chapter_folder} is empty")
         for image in images:
-            if not image.suffix.lower() in ALLOWED_COVER_EXTENSIONS:
+            if image.suffix.lower() not in ALLOWED_COVER_EXTENSIONS:
                 raise BadImageError(f"{image} is not an image")
 
     # check that the cover image exists
@@ -97,5 +97,5 @@ def validate_cir(path: Path | str) -> None:
             raise FileNotFoundError(
                 f"{cover_path} does not exist but is declared in {data_file}"
             )
-        if not cover_path.suffix.lower() in ALLOWED_COVER_EXTENSIONS:
+        if cover_path.suffix.lower() not in ALLOWED_COVER_EXTENSIONS:
             raise BadImageError(f"{cover_path} is not an accepted image")

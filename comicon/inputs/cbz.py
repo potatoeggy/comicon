@@ -118,4 +118,4 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                 new_path = dest / "chapter-1" / image_path.name
                 with open(new_path, "wb") as file:
                     file.write(data)
-                    yield str(filename)
+                    yield str(new_path)

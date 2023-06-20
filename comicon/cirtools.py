@@ -13,6 +13,8 @@ jpg, jpeg, png, and gif.
 All folders as well as the cover image must be declared in `comicon.json`. Only image
 files are allowed in the chapter folders, but any file is allowed in the root of
 the CIR folder.
+
+Extra files or folders in the CIR root will be ignored.
 """
 
 import json
@@ -23,7 +25,6 @@ from .errors import (
     BadImageError,
     EmptyChapterError,
     NoChaptersError,
-    UndeclaredChapterError,
     UnusedChapterError,
 )
 
@@ -74,11 +75,6 @@ def validate_cir(path: Path | str) -> None:
         raise UnusedChapterError(
             f"Chapters were declared in {data_file} but "
             f"were not found in the filesystem: {diff}"
-        )
-
-    if diff := chapter_folder_set - chapter_slugs:
-        raise UndeclaredChapterError(
-            f"Found following chapters that were not declared in {data_file}: {diff}"
         )
 
     # check that all chapter folders contain at least one image

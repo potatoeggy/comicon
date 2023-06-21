@@ -60,6 +60,10 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                     data = file.read()
 
                 comic = Comic.from_json(data)
+                # TODO: guarantee that this is done last after we've looked
+                # at all other possible sources of metadata
+                comic.metadata.merge_with(Metadata(**data_dict))
+
                 found_comicon_metadata = True
                 break
             elif "cover" in name and Path(name).suffix in ACCEPTED_IMAGE_EXTENSIONS:

@@ -27,18 +27,22 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
         # PyPDF does not support getting keywords
         # genre_str = reader.documentInfo["/Keywords"]
         # genres = genre_str.split(",") if genre_str else []
-        genres = []
+        genres: list[str] = []
         description = reader.metadata.subject
 
         # det if this is a comicon comic
         # we can use the "extra_metadata": "pdf_pages" fields to
         # to check via duck typings
+        inferred_metadata = Metadata(title, authors, description, genres, "")
 
         if reader.metadata.producer == "comicon":
             comic = Comic.from_json(reader.metadata.creator)
+            comic.metadata.merge_with(inferred_metadata)
         else:
-            metadata = Metadata(title, authors, description, genres, "")
-            comic = Comic(metadata, [Chapter("Chapter 1", "chapter-1")])
+            comic = Comic(inferred_metadata, [Chapter("Chapter 1", "chapter-1")])
+    else:
+        empty_metadata = Metadata(title, [], "", [], "")
+        comic = Comic(empty_metadata, [Chapter("Chapter 1", "chapter-1")])
 
         # use first image as cover
     yield len(reader.pages)

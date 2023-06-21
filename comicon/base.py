@@ -18,6 +18,31 @@ class Metadata:
     cover_path_rel: str | None = None
     extra_metadata: dict[str, Any] = field(default_factory=dict)
 
+    def merge_with(self, other: "Metadata") -> "Metadata":
+        """
+        Merge metadata from two comics. The new comic's metadata takes precedence,
+        as long as it exists. This updates the current metadata in place.
+        """
+        if other.title:
+            self.title = other.title
+
+        if other.authors:
+            self.authors = other.authors
+
+        if other.description:
+            self.description = other.description
+
+        if other.genres:
+            self.genres = other.genres
+
+        if other.cover_path_rel:
+            self.cover_path_rel = other.cover_path_rel
+
+        if other.extra_metadata:
+            self.extra_metadata = self.extra_metadata | other.extra_metadata
+
+        return self
+
 
 @dataclass
 class Comic:
@@ -33,7 +58,7 @@ class Comic:
     @classmethod
     def from_json(cls, dict_str: str | bytes | dict) -> "Comic":
         if not isinstance(dict_str, dict):
-            dict_str: dict = json.loads(dict_str)
+            dict_str = json.loads(dict_str)
 
         dict_str = cast(dict, dict_str)
         return cls(

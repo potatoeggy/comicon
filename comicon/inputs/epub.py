@@ -12,16 +12,62 @@ XML_NAMESPACE = "http://purl.org/dc/elements/1.1/"
 
 def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
     book = epub.read_epub(path)
+    comic = create_metadata_from_comicon(book)
+    book_metadata = create_metadata_from_book(book)
+    if comic:
+        comic.metadata.merge_with(book_metadata)
+        return create_cir_from_comicon(dest, book, comic)
+    return create_cir_from_other(dest, book, book_metadata)
+
+
+def create_metadata_from_comicon(book: epub.EpubBook) -> Comic | None:
+    """
+    Search the book for a Comicon data file and attempt to parse its metadata.
+    If no data file is found, return None.
+    """
     out: list[epub.EpubItem] = list(book.get_items())
-    comic = None
     for item in out:
         match item.file_name.split("/"):
             case ["static", cirtools.IR_DATA_FILE]:
-                comic = Comic.from_json(item.get_content())
-                return create_cir_from_comicon(dest, book, comic)
+                return Comic.from_json(item.get_content())
             case _:
                 ...
-    return create_cir_from_other(dest, book)
+    return None
+
+
+def create_metadata_from_book(book: epub.EpubBook) -> Metadata:
+    """
+    Search for metadata in the book itself, returning a comic
+    with the populated metadata but no chapters.
+    """
+    # look at TOC, take title and slug from each
+    # look at spine, be like noveldown
+    metadata = book.metadata[XML_NAMESPACE]
+    title: str = metadata["title"][0][0]
+    description: str = metadata["description"][0][0]
+    authors: list[str] = [author for author, _ in metadata["creator"]]
+    genres: list[str] = [genre for genre, _ in metadata["subject"]]
+
+    cover_item_rel: str | None = None
+    cover_item = get_cover_item(book)
+    if cover_item:
+        cover_item_rel = cover_item.file_name.split("/")[-1]
+
+    return Metadata(title, authors, description, genres, cover_item_rel)
+
+
+def get_cover_item(book: epub.EpubBook) -> epub.EpubItem | None:
+    """
+    Attempt to find the cover image item in the book.
+    """
+    try:
+        imgdir = book.get_metadata("OPF", "cover")[0][1]["content"]
+        cover_item: epub.EpubItem = book.get_item_with_id(imgdir)
+        return cover_item
+    except (KeyError, IndexError):
+        # no cover image
+        ...
+    return None
 
 
 def create_cir_from_comicon(
@@ -51,28 +97,14 @@ def create_cir_from_comicon(
                 pass
 
 
-def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int]:
-    # look at TOC, take title and slug from each
-    # look at spine, be like noveldown
-    metadata = book.metadata[XML_NAMESPACE]
-    title: str = metadata["title"][0][0]
-    description: str = metadata["description"][0][0]
-    authors: list[str] = [author for author, _ in metadata["creator"]]
-    genres: list[str] = [genre for genre, _ in metadata["subject"]]
-    cover_item_rel: str | None = None
-
-    try:
-        imgdir = book.get_metadata("OPF", "cover")[0][1]["content"]
-        cover_item: epub.EpubItem = book.get_item_with_id(imgdir)
-
-        cover_path = dest / cover_item.file_name.split("/")[-1]
+def create_cir_from_other(
+    dest: Path, book: epub.EpubBook, metadata: Metadata
+) -> Iterator[str | int]:
+    if metadata.cover_path_rel:
+        cover_path = dest / metadata.cover_path_rel
+        # this must be true because cover_path_rel exists
+        cover_item = cast(epub.EpubItem, get_cover_item(book))
         cover_path.write_bytes(cover_item.get_content())
-        cover_item_rel = cover_item.file_name.split("/")[-1]
-    except (KeyError, IndexError):
-        # no cover image
-        ...
-
-    comic_metadata = Metadata(title, authors, description, genres, cover_item_rel)
 
     # assume that there can be no duplicate IDs in
     # a properly formed EPUB
@@ -107,7 +139,7 @@ def create_cir_from_other(dest: Path, book: epub.EpubBook) -> Iterator[str | int
             # this is a hack so we don't have to create a new chapter
             chapters[item - 1][1].append(page)
 
-    comic = Comic(comic_metadata, [chapter.base_chap for chapter, _ in chapters])
+    comic = Comic(metadata, [chapter.base_chap for chapter, _ in chapters])
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
 
     for chapter, page_list in chapters:

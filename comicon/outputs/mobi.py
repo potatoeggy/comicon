@@ -9,12 +9,17 @@ KINDLEGEN_BIN = "kindlegen"
 
 def check_kindlegen() -> None:
     # check if kindlegen is installed
-    kindlegen_return_code = subprocess.run(
-        [KINDLEGEN_BIN, "-locale", "en"],
-        stdout=subprocess.PIPE,
-        stdin=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    ).returncode
+    try:
+        kindlegen_return_code = subprocess.run(
+            [KINDLEGEN_BIN, "-locale", "en"],
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        ).returncode
+    except FileNotFoundError as err:
+        raise RuntimeError(
+            "Kindlegen was not found in the current PATH and is required for MOBI conversion."
+        ) from err
 
     if kindlegen_return_code != 0:
         raise RuntimeError(

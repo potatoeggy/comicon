@@ -14,6 +14,8 @@ comicon.convert("comic.cbz", "comic.epub")
 
 ## Installation
 
+Amazon's **Kindlegen** is required if you want to convert to MOBI. See [here](https://github.com/ciromattia/kcc/issues/371) for more information.
+
 Comicon is available from PyPI:
 
 ```

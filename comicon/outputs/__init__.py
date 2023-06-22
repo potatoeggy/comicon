@@ -2,18 +2,19 @@ from pathlib import Path
 from typing import Callable, Iterator, Literal, get_args
 
 from .. import cirtools
-from . import cbz, cir, epub, pdf
+from . import cbz, cir, epub, mobi, pdf
 
-SupportedOutputs = Literal["cbz", "epub", "pdf", "cir"]
+SupportedOutputs = Literal["cbz", "epub", "pdf", "cir", "mobi"]
 OutputFn = Callable[[Path, Path], Iterator[str | int]]
 
-SupportedOutputList: tuple[SupportedOutputs] = get_args(SupportedOutputs)  # type: ignore # noqa: B950
+SupportedOutputList: tuple[SupportedOutputs] = get_args(SupportedOutputs)  # type: ignore
 
 OUTPUT_FN_MAP: dict[SupportedOutputs, OutputFn] = {
     "cbz": cbz.create_comic,
     "epub": epub.create_comic,
     "pdf": pdf.create_comic,
     "cir": cir.create_comic,
+    "mobi": mobi.create_comic,
 }
 
 

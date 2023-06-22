@@ -1,6 +1,6 @@
 # Comicon
 
-Comicon is a lightweight comic converter library between CBZ, PDF, and EPUB that preserves metadata. Once Comicon has converted a comic, it is **guaranteed** that the reverse conversion will restore the original comic with all of its original metadata.
+Comicon is a lightweight comic converter library between CBZ, PDF, EPUB, and MOBI that preserves metadata. Once Comicon has converted a comic, it is **guaranteed** that the reverse conversion will restore the original comic with all of its original metadata.
 
 ## Usage
 
@@ -22,11 +22,12 @@ pip install comicon
 
 ## Supported conversions
 
-| Format | Convert from? | Convert to? |
-| --- | --- | --- |
-| CBZ | :heavy_check_mark: | :heavy_check_mark: |
-| EPUB | :heavy_check_mark: | :heavy_check_mark: |
-| PDF | :heavy_check_mark: | :heavy_check_mark: |
+| Format | Convert from?      | Convert to?        |
+| ------ | ------------------ | ------------------ |
+| CBZ    | :heavy_check_mark: | :heavy_check_mark: |
+| EPUB   | :heavy_check_mark: | :heavy_check_mark: |
+| PDF    | :heavy_check_mark: | :heavy_check_mark: |
+| MOBI   | :x:                | :heavy_check_mark: |
 
 ### Format discrepancies
 

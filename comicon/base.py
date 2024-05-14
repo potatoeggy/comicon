@@ -2,6 +2,8 @@ import json
 from dataclasses import asdict, dataclass, field
 from typing import Any, cast
 
+from slugify import slugify
+
 
 @dataclass
 class Chapter:
@@ -17,6 +19,10 @@ class Metadata:
     genres: list[str] = field(default_factory=list)
     cover_path_rel: str | None = None
     extra_metadata: dict[str, Any] = field(default_factory=dict)
+    title_slug: str = ""
+
+    def __post_init__(self):
+        self.title_slug = slugify(self.title)
 
     def merge_with(self, other: "Metadata") -> "Metadata":
         """

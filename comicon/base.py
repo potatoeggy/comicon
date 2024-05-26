@@ -5,6 +5,25 @@ from typing import Any, cast
 from slugify import slugify
 
 
+SLUGIFY_ARGS = {
+    "allow_unicode": True,
+    "regex_pattern": r'["<:\?\*\|/>\\]+',
+    "replacements": [
+        [":", ";"],
+        ["/", ""],
+        ["?", ""],
+        ["*", "x"],
+        ["|", ""],
+        ["<", ""],
+        [">", ""],
+        ['"', ""],
+        ["!", ""],
+        ["'", "`"],
+    ],
+    "lowercase": False,
+}
+
+
 @dataclass
 class Chapter:
     title: str
@@ -22,7 +41,7 @@ class Metadata:
     title_slug: str = ""
 
     def __post_init__(self):
-        self.title_slug = slugify(self.title)
+        self.title_slug = slugify(self.title, **SLUGIFY_ARGS)
 
     def merge_with(self, other: "Metadata") -> "Metadata":
         """

@@ -1,5 +1,5 @@
 from .api import convert, convert_progress
-from .base import Chapter, Comic, Metadata
+from .base import Chapter, Comic, Metadata, SLUGIFY_ARGS
 from .cirtools import validate_cir
 from .inputs import (
     SupportedInputList,

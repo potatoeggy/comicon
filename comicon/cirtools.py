@@ -90,8 +90,6 @@ def validate_cir(path: Path | str) -> None:
     if comic.metadata.cover_path_rel:
         cover_path = path / f"{comic.metadata.cover_path_rel}"
         if not cover_path.is_file():
-            raise FileNotFoundError(
-                f"{cover_path} does not exist but is declared in {data_file}"
-            )
+            raise FileNotFoundError(f"{cover_path} does not exist but is declared in {data_file}")
         if cover_path.suffix.lower() not in ALLOWED_COVER_EXTENSIONS:
             raise BadImageError(f"{cover_path} is not an accepted image")

@@ -4,7 +4,6 @@ from typing import Any, cast
 
 from slugify import slugify
 
-
 SLUGIFY_ARGS = {
     "allow_unicode": True,
     "regex_pattern": r'["<:\?\*\|/>\\]+',

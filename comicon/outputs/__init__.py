@@ -49,16 +49,13 @@ def create_comic_progress(
 
     inferred_ext = dest.suffix.lower().split(".")[-1]
     if not ext and inferred_ext not in get_args(SupportedOutputs):
-        raise ValueError(
-            f"Could not infer a supported output extension ({inferred_ext})"
-        )
+        raise ValueError(f"Could not infer a supported output extension ({inferred_ext})")
 
     if validate:
         cirtools.validate_cir(ir_path)
 
     if dest.is_dir():
         raise IsADirectoryError(
-            f"{dest} is a directory. Make sure you pass the file"
-            "path to the new comic file."
+            f"{dest} is a directory. Make sure you pass the file" "path to the new comic file."
         )
     yield from OUTPUT_FN_MAP[ext or inferred_ext](ir_path, dest)

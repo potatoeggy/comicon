@@ -70,9 +70,7 @@ def get_cover_item(book: epub.EpubBook) -> epub.EpubItem | None:
     return None
 
 
-def create_cir_from_comicon(
-    dest: Path, book: epub.EpubBook, comic: Comic
-) -> Iterator[str | int]:
+def create_cir_from_comicon(dest: Path, book: epub.EpubBook, comic: Comic) -> Iterator[str | int]:
     # we can make a *lot* of assumptions
     (dest / cirtools.IR_DATA_FILE).write_text(comic.to_json())
 
@@ -115,17 +113,14 @@ def create_cir_from_other(
 
     # list of tuples of chapter and list of hrefs
     chapters: list[tuple[ChapterPageMetadata, list[epub.EpubItem]]] = [
-        (ChapterPageMetadata(Chapter(chap.title, chap.uid), chap.href), [])
-        for chap in book.toc
+        (ChapterPageMetadata(Chapter(chap.title, chap.uid), chap.href), []) for chap in book.toc
     ]
     item = 0  # represents next chapter
 
     yield len(book.spine)  # num pages to copy
     for page, _ in book.spine:
         page: epub.EpubItem = book.get_item_with_id(page)
-        full_path = str(("/" / Path(page.file_name)).resolve()).removeprefix(
-            dest.anchor
-        )
+        full_path = str(("/" / Path(page.file_name)).resolve()).removeprefix(dest.anchor)
 
         if len(chapters) == item:
             # add anything after the last chapter
@@ -164,9 +159,7 @@ def create_cir_from_other(
             img_path_abs = str(
                 # if in form ../img/blah and cd = /pages/test
                 # then return pages/img/blah
-                img_href
-                if img_href.is_absolute()
-                else (cd / img_href).resolve()
+                img_href if img_href.is_absolute() else (cd / img_href).resolve()
             ).removeprefix(drive_root)
 
             for item in book.get_items():

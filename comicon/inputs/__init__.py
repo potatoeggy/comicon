@@ -52,9 +52,7 @@ def create_cir_progress(
     # try to guess ext
     inferred_ext = path.suffix.lower().split(".")[-1]
     if not ext and inferred_ext not in get_args(SupportedInputs):
-        raise ValueError(
-            f"Could not infer a supported input extension ({inferred_ext})"
-        )
+        raise ValueError(f"Could not infer a supported input extension ({inferred_ext})")
 
     inferred_ext = cast(SupportedInputs, inferred_ext)
 

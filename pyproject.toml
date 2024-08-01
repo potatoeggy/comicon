@@ -12,8 +12,8 @@ keywords = ["converter", "comic", "cbz", "epub", "pdf", "mobi"]
 [tool.poetry.dependencies]
 python = ">=3.10"
 ebooklib = "^0.18"
-pillow = "^10.2.0"
-lxml = "^5.1.0"
+pillow = "^10.4.0"
+lxml = "^5.2.2"
 pypdf = { extras = ["image"], version = "^4.3.1" }
 python-slugify = "^8.0.4"
 

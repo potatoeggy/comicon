@@ -8,9 +8,7 @@ from lxml import etree
 
 from ..base import Chapter, Comic, Metadata
 from ..cirtools import IR_DATA_FILE
-
-ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif"]
-
+from ..image import ACCEPTED_IMAGE_EXTENSIONS
 
 class MetadataDict(TypedDict):
     title: str

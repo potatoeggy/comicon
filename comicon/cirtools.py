@@ -8,7 +8,7 @@ The CIR is a folder that must contain the following:
 defined in `comicon.json`
     - `{number}.{ext}`: ordered image files representing one comic page (min. 1)
 - `cover.{ext}`: a file containing the cover of the comic. Extensions allowed include
-jpg, jpeg, png, and gif.
+jpg, jpeg, js2, png, and gif.
 
 All folders as well as the cover image must be declared in `comicon.json`. Only image
 files are allowed in the chapter folders, but any file is allowed in the root of
@@ -27,9 +27,10 @@ from .errors import (
     NoChaptersError,
     UnusedChapterError,
 )
+from .image import ACCEPTED_IMAGE_EXTENSIONS
 
 IR_DATA_FILE = "comicon.json"
-ALLOWED_COVER_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif"]
+ALLOWED_COVER_EXTENSIONS = ACCEPTED_IMAGE_EXTENSIONS
 
 
 def read_metadata(path: Path | str) -> Comic:

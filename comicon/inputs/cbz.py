@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Iterator, TypedDict
 
 from lxml import etree
+from slugify import slugify
 
-from ..base import Chapter, Comic, Metadata
+from ..base import Chapter, Comic, Metadata, SLUGIFY_ARGS
 from ..cirtools import IR_DATA_FILE
 from ..image import ACCEPTED_IMAGE_EXTENSIONS
 
@@ -35,6 +36,8 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
         "extra_metadata": {},
     }
 
+    chapters = []
+    chapter_index = {}
     found_comicon_metadata = False
     image_paths: list[Path] = []
     with zipfile.ZipFile(path, "r", zipfile.ZIP_DEFLATED) as z:
@@ -53,6 +56,15 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                             data_dict["authors"] = str(el.text).split(", ")
                         case "Genre":
                             data_dict["genres"] = str(el.text).split(", ")
+                    if el.tag == "Pages":
+                        for page in el.iter():
+                            if page.tag == "Page" and "Image" in page.attrib:
+                                if "Bookmark" in page.attrib:
+                                    chapters.append(Chapter(page.attrib["Bookmark"], slugify(page.attrib["Bookmark"], **SLUGIFY_ARGS)))
+                                    chapter_index[page.attrib["Bookmark"]] = int(page.attrib["Image"])
+                                elif "Type" in page.attrib:
+                                    chapters.append(Chapter(page.attrib["Type"], slugidy(page.attrib["Type"], **SLUGIFY_ARGS)))
+                                    chapter_index[page.attrib["Type"]] = int(page.attrib["Image"])
             elif name.endswith(IR_DATA_FILE):
                 with z.open(name) as file:
                     data = file.read()
@@ -80,7 +92,11 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                 # ignore all other file types
                 ...
         else:
-            comic = Comic(Metadata(**data_dict), [Chapter("Chapter 1", "chapter-1")])
+            if not chapters:
+                # TODO: remove hardcoded "chapter-1" and make it variable
+                chapters.append(Chapter("Chapter 1", "chapter-1"))
+                chapter_index["Chapter 1"] = 0
+            comic = Comic(Metadata(**data_dict), chapters)
 
         with open(dest / IR_DATA_FILE, "w", encoding="utf-8") as file:
             json.dump(comic.to_dict(), file, indent=2)
@@ -110,14 +126,23 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                     file.write(data)
                     yield str(filename)
         else:
-            # copy all image folders into a single folder
-            # TODO: remove hardcoded "chapter-1" and make it variable
-            (dest / "chapter-1").mkdir(exist_ok=True)
-            for image_path in image_paths:
-                with z.open(str(image_path)) as file:
-                    data = file.read()
+            # create chapters from the ComicInfo.xml Metadata or put them into a single folder if none are given
+            image_paths = sorted(image_paths)
+            chapters = sorted(chapters, key=lambda c: chapter_index[c.title])
+            chapters.append(Chapter("END", "end"))
+            chapter_index["END"] = len(image_paths)
+            for i, chapter in enumerate(chapters[:-1]):
+                (dest / chapter.slug).mkdir(exist_ok=True)
 
-                new_path = dest / "chapter-1" / image_path.name
-                with open(new_path, "wb") as file:
-                    file.write(data)
-                    yield str(new_path)
+                start_page = chapter_index[chapter.title]
+                end_page = chapter_index[chapters[i + 1].title]
+
+                for j, image_path in enumerate(image_paths[start_page:end_page], start=1):
+                    with z.open(str(image_path)) as file:
+                        data = file.read()
+
+                    ext = Path(image_path).suffix
+                    new_path = dest / chapter.slug / f"{j:05}{ext}"
+                    with open(new_path, "wb") as file:
+                        file.write(data)
+                        yield str(new_path)

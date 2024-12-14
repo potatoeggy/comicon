@@ -63,7 +63,7 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                                     chapters.append(Chapter(page.attrib["Bookmark"], slugify(page.attrib["Bookmark"], **SLUGIFY_ARGS)))
                                     chapter_index[page.attrib["Bookmark"]] = int(page.attrib["Image"])
                                 elif "Type" in page.attrib:
-                                    chapters.append(Chapter(page.attrib["Type"], slugidy(page.attrib["Type"], **SLUGIFY_ARGS)))
+                                    chapters.append(Chapter(page.attrib["Type"], slugify(page.attrib["Type"], **SLUGIFY_ARGS)))
                                     chapter_index[page.attrib["Type"]] = int(page.attrib["Image"])
             elif name.endswith(IR_DATA_FILE):
                 with z.open(name) as file:

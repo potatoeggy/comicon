@@ -5,7 +5,7 @@ from ebooklib import epub
 
 from .. import cirtools
 from ..base import Chapter
-from ..image import EXTENSION_MIME_MAP
+from ..image import WITH_WEBP_EXTENSION_MIME_MAP
 
 STYLE_CSS = """
 @page {
@@ -29,6 +29,7 @@ PAGE_CONTENT_TEMPLATE = """<html>
   </body>
 </html>
 """
+
 
 def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
     comic = cirtools.read_metadata(cir_path)
@@ -62,7 +63,7 @@ def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
             img = epub.EpubImage(  # pylint: disable=unexpected-keyword-arg
                 uid=f"{chapter.slug}-{image.name}",
                 file_name=f"img/{chapter.slug}/{image.name}",
-                media_type=EXTENSION_MIME_MAP[image.suffix.lower()],
+                media_type=WITH_WEBP_EXTENSION_MIME_MAP[image.suffix.lower()],
                 content=image_content,
             )
 

@@ -80,11 +80,11 @@ class Comic:
         return asdict(self)
 
     @classmethod
-    def from_json(cls, dict_str: str | bytes | dict) -> "Comic":
+    def from_json(cls, dict_str: str | bytes | dict[Any, Any]) -> "Comic":
         if not isinstance(dict_str, dict):
             dict_str = json.loads(dict_str)
 
-        dict_str = cast(dict, dict_str)
+        dict_str = cast(dict[Any, Any], dict_str)
         return cls(
             Metadata(**dict_str["metadata"]),
             [Chapter(**c) for c in dict_str["chapters"]],

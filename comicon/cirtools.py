@@ -8,7 +8,7 @@ The CIR is a folder that must contain the following:
 defined in `comicon.json`
     - `{number}.{ext}`: ordered image files representing one comic page (min. 1)
 - `cover.{ext}`: a file containing the cover of the comic. Extensions allowed include
-jpg, jpeg, js2, png, and gif.
+jpg, jpeg, js2, png, gif, and webp.
 
 All folders as well as the cover image must be declared in `comicon.json`. Only image
 files are allowed in the chapter folders, but any file is allowed in the root of

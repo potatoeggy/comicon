@@ -9,7 +9,8 @@ from slugify import slugify
 
 from ..base import Chapter, Comic, Metadata, SLUGIFY_ARGS
 from ..cirtools import IR_DATA_FILE
-from ..image import ACCEPTED_IMAGE_EXTENSIONS
+from ..image import WITH_WEBP_ACCEPTED_IMAGE_EXTENSIONS
+
 
 class MetadataDict(TypedDict):
     title: str
@@ -60,10 +61,22 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                         for page in el.iter():
                             if page.tag == "Page" and "Image" in page.attrib:
                                 if "Bookmark" in page.attrib:
-                                    chapters.append(Chapter(page.attrib["Bookmark"], slugify(page.attrib["Bookmark"], **SLUGIFY_ARGS)))
-                                    chapter_index[page.attrib["Bookmark"]] = int(page.attrib["Image"])
+                                    chapters.append(
+                                        Chapter(
+                                            page.attrib["Bookmark"],
+                                            slugify(page.attrib["Bookmark"], **SLUGIFY_ARGS),
+                                        )
+                                    )
+                                    chapter_index[page.attrib["Bookmark"]] = int(
+                                        page.attrib["Image"]
+                                    )
                                 elif "Type" in page.attrib:
-                                    chapters.append(Chapter(page.attrib["Type"], slugify(page.attrib["Type"], **SLUGIFY_ARGS)))
+                                    chapters.append(
+                                        Chapter(
+                                            page.attrib["Type"],
+                                            slugify(page.attrib["Type"], **SLUGIFY_ARGS),
+                                        )
+                                    )
                                     chapter_index[page.attrib["Type"]] = int(page.attrib["Image"])
             elif name.endswith(IR_DATA_FILE):
                 with z.open(name) as file:
@@ -76,11 +89,11 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
 
                 found_comicon_metadata = True
                 break
-            elif "cover" in name and Path(name).suffix in ACCEPTED_IMAGE_EXTENSIONS:
+            elif "cover" in name and Path(name).suffix in WITH_WEBP_ACCEPTED_IMAGE_EXTENSIONS:
                 # assume that any *cover*.{img} is the cover image
                 # TODO: CAN AND WILL BREAK ON FOLDER NAMES
                 data_dict["cover_path_rel"] = name
-            elif (path := Path(name)).suffix in ACCEPTED_IMAGE_EXTENSIONS:
+            elif (path := Path(name)).suffix in WITH_WEBP_ACCEPTED_IMAGE_EXTENSIONS:
                 # the only other files should be images
                 # if it's comicon-created, we should be able to take the folder
                 # structure and strip the leading chars, splitting at first "-"
@@ -126,7 +139,8 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                     file.write(data)
                     yield str(filename)
         else:
-            # create chapters from the ComicInfo.xml Metadata or put them into a single folder if none are given
+            # create chapters from the ComicInfo.xml Metadata or
+            # put them into a single folder if none are given
             image_paths = sorted(image_paths)
             chapters = sorted(chapters, key=lambda c: chapter_index[c.title])
             chapters.append(Chapter("END", "end"))

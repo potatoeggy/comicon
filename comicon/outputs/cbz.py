@@ -1,3 +1,4 @@
+import os
 import zipfile
 from pathlib import Path
 from typing import Iterator
@@ -38,7 +39,10 @@ def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
                 new_img_path = rel_chap_path / image.name
                 file.write(
                     image,
-                    new_img_path.absolute().relative_to(cir_path),
+                    # we cannot use Path.relative_to here because it does not support making a path
+                    # relative to another relative path if the first path is an absolute path
+                    # https://stackoverflow.com/questions/67452690/pathlib-path-relative-to-vs-os-path-relpath
+                    os.path.relpath(new_img_path.absolute(), cir_path),
                     zipfile.ZIP_DEFLATED,
                 )
             yield str(i)
@@ -48,7 +52,7 @@ def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
             file.write(
                 cover_path,
                 # rename cover to appear first in the archive
-                cover_path.with_stem("..cover").absolute().relative_to(cir_path),
+                os.path.relpath(cover_path.with_stem("..cover").absolute(), cir_path),
                 zipfile.ZIP_DEFLATED,
             )
         file.writestr("ComicInfo.xml", text_xml)

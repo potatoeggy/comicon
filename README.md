@@ -24,16 +24,16 @@ pip install comicon
 
 ## Supported conversions
 
-| Format | Convert from?      | Convert to?        |
-| ------ | ------------------ | ------------------ |
-| CBZ    | :heavy_check_mark: | :heavy_check_mark: |
-| EPUB   | :heavy_check_mark: | :heavy_check_mark: |
-| PDF    | :heavy_check_mark: | :heavy_check_mark: |
-| MOBI   | :x:                | :heavy_check_mark: |
+| Format | Convert from?      | Convert to?        | Supports table of contents? |
+| ------ | ------------------ | ------------------ | --------------------------- |
+| CBZ    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:          |
+| EPUB   | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:          |
+| PDF    | :heavy_check_mark: | :heavy_check_mark: | :x:                         |
+| MOBI   | :x:                | :heavy_check_mark: | :heavy_check_mark:          |
 
 ### Format discrepancies
 
-- Only EPUB supports a table of contents. CBZ and PDF will encode the table of contents so that it is restored upon converting to EPUB.
+- Formats that do not support a table of contents will encode them so that they are restored if converted back to a format that supports them.
 - PDF does not support importing genre data due to a lack of library support. This may be worked around in the future.
 
 ## Notes

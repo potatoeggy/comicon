@@ -74,8 +74,7 @@ def validate_cir(path: Path | str) -> None:
     chapter_folder_set = {f.name for f in chapter_folders}
     if diff := chapter_slugs - chapter_folder_set:
         raise UnusedChapterError(
-            f"Chapters were declared in {data_file} but "
-            f"were not found in the filesystem: {diff}"
+            f"Chapters were declared in {data_file} but were not found in the filesystem: {diff}"
         )
 
     # check that all chapter folders contain at least one image
@@ -94,3 +93,14 @@ def validate_cir(path: Path | str) -> None:
             raise FileNotFoundError(f"{cover_path} does not exist but is declared in {data_file}")
         if cover_path.suffix.lower() not in ALLOWED_COVER_EXTENSIONS:
             raise BadImageError(f"{cover_path} is not an accepted image")
+
+
+def count_pages(path: Path) -> int:
+    """
+    Count the number of pages in a comic.
+    """
+    comic = read_metadata(path)
+    total = 0
+    for chap in comic.chapters:
+        total += len(list((path / chap.slug).iterdir()))
+    return total

@@ -7,7 +7,7 @@ from typing import Iterator, TypedDict
 from lxml import etree
 from slugify import slugify
 
-from ..base import Chapter, Comic, Metadata, SLUGIFY_ARGS
+from ..base import SLUGIFY_ARGS, Chapter, Comic, Metadata
 from ..cirtools import IR_DATA_FILE
 from ..image import WITH_WEBP_ACCEPTED_IMAGE_EXTENSIONS
 
@@ -21,7 +21,7 @@ class MetadataDict(TypedDict):
     extra_metadata: dict[str, str]
 
 
-def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
+def create_cir(path: Path, dest: Path) -> Iterator[str | int]:  # noqa: C901
     """
     Convert a comic to the CIR format. Not all metadata can be converted,
     unless the comic was created by comicon.
@@ -57,27 +57,29 @@ def create_cir(path: Path, dest: Path) -> Iterator[str | int]:
                             data_dict["authors"] = str(el.text).split(", ")
                         case "Genre":
                             data_dict["genres"] = str(el.text).split(", ")
-                    if el.tag == "Pages":
-                        for page in el.iter():
-                            if page.tag == "Page" and "Image" in page.attrib:
-                                if "Bookmark" in page.attrib:
-                                    chapters.append(
-                                        Chapter(
-                                            page.attrib["Bookmark"],
-                                            slugify(page.attrib["Bookmark"], **SLUGIFY_ARGS),
+                        case "Pages":
+                            for page in el.iter():
+                                if page.tag == "Page" and "Image" in page.attrib:
+                                    if "Bookmark" in page.attrib:
+                                        chapters.append(
+                                            Chapter(
+                                                page.attrib["Bookmark"],
+                                                slugify(page.attrib["Bookmark"], **SLUGIFY_ARGS),
+                                            )
                                         )
-                                    )
-                                    chapter_index[page.attrib["Bookmark"]] = int(
-                                        page.attrib["Image"]
-                                    )
-                                elif "Type" in page.attrib:
-                                    chapters.append(
-                                        Chapter(
-                                            page.attrib["Type"],
-                                            slugify(page.attrib["Type"], **SLUGIFY_ARGS),
+                                        chapter_index[page.attrib["Bookmark"]] = int(
+                                            page.attrib["Image"]
                                         )
-                                    )
-                                    chapter_index[page.attrib["Type"]] = int(page.attrib["Image"])
+                                    elif "Type" in page.attrib:
+                                        chapters.append(
+                                            Chapter(
+                                                page.attrib["Type"],
+                                                slugify(page.attrib["Type"], **SLUGIFY_ARGS),
+                                            )
+                                        )
+                                        chapter_index[page.attrib["Type"]] = int(
+                                            page.attrib["Image"]
+                                        )
             elif name.endswith(IR_DATA_FILE):
                 with z.open(name) as file:
                     data = file.read()

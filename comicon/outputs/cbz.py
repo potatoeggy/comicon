@@ -7,6 +7,7 @@ from lxml import etree
 from lxml.builder import E
 
 from .. import cirtools
+from ..common.cbz import build_page_index
 
 
 def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
@@ -15,6 +16,7 @@ def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
     and `comicon.json`.
     """
     comic = cirtools.read_metadata(cir_path)
+    page_index = build_page_index(cir_path, comic)
 
     tree = E.ComicInfo(
         E.Title(
@@ -23,6 +25,8 @@ def create_comic(cir_path: Path, dest: Path) -> Iterator[str | int]:
         E.Summary(comic.metadata.description),
         E.Writer(", ".join(comic.metadata.authors)),
         E.Genre(", ".join(comic.metadata.genres)),
+        E.PageCount(str(len(page_index))),
+        E.Pages(*[E.Page(**page.build_lxml_kwargs()) for page in page_index]),
         # TODO: add pages
     )
     text_xml = etree.tostring(
